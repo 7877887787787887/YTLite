@@ -1,0 +1,23 @@
+name: Build YouTube Plus tweak package
+
+on:
+  push:
+    paths:
+      - '.github/workflows/build-tweak-package.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-tweaks:
+    uses: ./.github/workflows/_build_tweaks.yml
+    with:
+      enable_youpip: true
+      enable_ytuhd: false
+      enable_yq: true
+      enable_ryd: true
+      enable_ytabc: false
+      enable_demc: false
+      enable_localization: false
+      tweak_version: '6.0'
