@@ -1,0 +1,33 @@
+name: Export Offline IPA Injector Toolchain
+
+on:
+  push:
+    paths:
+      - '.github/workflows/export-cyan-offline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Collect official cyan sources and required dependencies
+        run: |
+          set -euxo pipefail
+          git clone --depth 1 https://github.com/asdfzxcvbn/pyzule-rw.git /tmp/pyzule-rw
+          mkdir -p bundle
+          cp -a /tmp/pyzule-rw/cyan bundle/
+          cp -a /tmp/pyzule-rw/cgen bundle/
+          cp /tmp/pyzule-rw/setup.py bundle/
+          cp /tmp/pyzule-rw/MANIFEST.in bundle/ || true
+          python3 -m pip download --dest bundle/wheels lief --only-binary=:all: --python-version 3.11 --implementation cp --abi cp311 --platform manylinux_2_17_x86_64 || true
+          find bundle -type f | wc -l
+          tar -czf offline-cyan-source.tgz -C bundle .
+      - name: Save for local packaging
+        uses: actions/upload-artifact@v7
+        with:
+          name: offline-cyan-source
+          path: offline-cyan-source.tgz
+          retention-days: 1
